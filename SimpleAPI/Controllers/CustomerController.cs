@@ -43,18 +43,36 @@ namespace SimpleAPI.Controllers
 
 
         [HttpGet]
-        public async Task<IEnumerable<Customer>> GetAllCustomersAsync()
+        public async Task<ActionResult> GetAllCustomersAsync()
         {
-            _logger.LogInformation("Retrieving all customers");
-            return await _customerService.GetAllCustomersAsync();
+
+            var customers = await _customerService.GetAllCustomersAsync();
+            if (customers == null)
+            {
+                return NotFound($"Customers not found");
+
+            }
+            else
+            {
+                _logger.LogInformation("Retrieving all customers");
+                return Ok(customers.Select(r => _mapper.Map<CustomerDto>(r)).ToList());
+            }
         }
 
         [HttpDelete("{customerId}")]
-        public async Task DeleteCustomerAsync(int customerId)
+        public async Task<ActionResult> DeleteCustomerAsync(int customerId)
         {
-            await _customerService.DeleteCustomerAsync(customerId);
+            var response = await _customerService.DeleteCustomerAsync(customerId);
             _logger.LogInformation($"Deleted customer with ID {customerId}");
-            await Task.CompletedTask;
+
+            if (response.Succeeded)
+            {
+                return Ok();
+            }
+            else
+            {
+                return ToResult(response);
+            };
         }
 
         private ActionResult ToResult(Microsoft.AspNetCore.Identity.IdentityResult serviceResponse)

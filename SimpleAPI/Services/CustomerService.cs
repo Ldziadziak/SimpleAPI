@@ -31,18 +31,27 @@
             return IdentityResult.Success;
         }
 
-        public async Task<IEnumerable<Customer>> GetAllCustomersAsync()
+        public async Task<IEnumerable<Customer?>> GetAllCustomersAsync()
         {
-            return await _customerStore.GetAllAsync();
+            var customers = await _customerStore.GetAllAsync();
+            if (customers == null)
+            {
+                return null!;
+            }
+
+            return customers;
         }
 
-        public async Task DeleteCustomerAsync(int Id)
+        public async Task<IdentityResult> DeleteCustomerAsync(int Id)
         {
             var customer = await _customerStore.GetByIdAsync(Id);
-            if (customer != null)
-            {
-                await _customerStore.DeleteAsync(Id);
-            }
+
+            if (customer == null)
+                return IdentityResult.Success;
+
+            // ensure we can delete client i.e. no users exist
+            await _customerStore.DeleteAsync(customer.Id);
+            return IdentityResult.Success;
         }
     }
 

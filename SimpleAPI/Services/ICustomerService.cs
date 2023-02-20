@@ -11,7 +11,7 @@ namespace SimpleAPI.Services
         const string InvalidDataErrorCode = "InvalidData";
 
         Task<IdentityResult> AddCustomerAsync(Customer customer);
-        Task<IEnumerable<Customer>> GetAllCustomersAsync();
-        Task DeleteCustomerAsync(int Id);
+        Task<IEnumerable<Customer?>> GetAllCustomersAsync();
+        Task<IdentityResult> DeleteCustomerAsync(int Id);
     }
 }
