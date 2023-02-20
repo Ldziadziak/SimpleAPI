@@ -6,7 +6,7 @@ namespace SimpleAPI.Data
     {
         private readonly List<Customer> _customers = new List<Customer>();
 
-        public async Task<Customer> CreateAsync(Customer customer)
+        public async Task<Customer> AddCustomerAsync(Customer customer)
         {
             if (customer.Id == 0)
             {

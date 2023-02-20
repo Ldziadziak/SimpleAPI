@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Moq;
 using SimpleAPI.Data;
 using SimpleAPI.Models;
@@ -8,31 +9,36 @@ namespace SimpleAPITests
     public class CustomerServiceTests
     {
         [Fact]
-        public async Task AddCustomerAsync_ValidCustomer_ReturnsCreatedCustomer()
+        public async Task AddCustomerAsync_WhenCustomerIsValid_ReturnsIdentityResultSuccess()
         {
             // Arrange
-            var mockCustomerStore = new Mock<ICustomerStore>();
-            var customer = new Customer()
+            var customer = new Customer
             {
                 Id = 1,
                 Name = "John",
                 Surname = "Doe"
             };
 
-            var customerService = new CustomerService(mockCustomerStore.Object);
+            // Create a mock ICustomerStore object that will be used to simulate adding a customer
+            var customerStoreMock = new Mock<ICustomerStore>();
 
-            // Set up the mock to return the added customer for the GetByIdAsync method
-            mockCustomerStore.Setup(x => x.GetByIdAsync(customer.Id)).ReturnsAsync(customer);
+            // Set up the mock to return true when AddCustomerAsync is called with the customer object
+            customerStoreMock.Setup(store => store.AddCustomerAsync(customer));
+
+            // Create a new CustomerService object and inject the mock customer store into it
+            var customerService = new CustomerService(customerStoreMock.Object);
 
             // Act
-            var addedCustomer = await customerService.AddCustomerAsync(customer);
+            var result = await customerService.AddCustomerAsync(customer);
 
             // Assert
-            // Check that the added customer is the same as the expected customer
-            Assert.Equal(customer, addedCustomer);
-            // Verify that the CreateAsync method was called once with the expected customer
-            mockCustomerStore.Verify(x => x.CreateAsync(customer), Times.Once);
+            // Check that the result is an IdentityResult with the Success flag set
+            Assert.Equal(IdentityResult.Success, result);
+
+            // Verify that AddCustomerAsync was called exactly once with the correct customer object
+            customerStoreMock.Verify(store => store.AddCustomerAsync(customer), Times.Once);
         }
+
 
         [Fact]
         public async Task GetAllCustomersAsync_ReturnsListOfCustomers()
@@ -102,6 +108,6 @@ namespace SimpleAPITests
             // Assert
             mockCustomerStore.Verify(x => x.DeleteAsync(customerId), Times.Never);
         }
-    }
 
+    }
 }

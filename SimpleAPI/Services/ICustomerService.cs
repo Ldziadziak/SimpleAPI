@@ -1,11 +1,16 @@
-﻿using SimpleAPI.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using SimpleAPI.Models;
 
 namespace SimpleAPI.Services
 {
     public interface ICustomerService
     {
+        const string DuplicateErrorCode = "Duplicate";
+        const string DbErrorCode = "DbError";
+        const string NotFoundErrorCode = "NotFound";
+        const string InvalidDataErrorCode = "InvalidData";
 
-        Task<Customer> AddCustomerAsync(Customer customer);
+        Task<IdentityResult> AddCustomerAsync(Customer customer);
         Task<IEnumerable<Customer>> GetAllCustomersAsync();
         Task DeleteCustomerAsync(int Id);
     }

@@ -1,5 +1,6 @@
 ﻿namespace SimpleAPI.Services
 {
+    using Microsoft.AspNetCore.Identity;
     using SimpleAPI.Data;
     using SimpleAPI.Models;
     using System.Collections.Generic;
@@ -7,36 +8,40 @@
 
     public class CustomerService : ICustomerService
     {
-        private readonly ICustomerStore _clientStore;
+        private readonly ICustomerStore _customerStore;
         //private readonly ICustomerValidator _customerValidator
 
         public CustomerService(ICustomerStore clientStore)
         {
-            _clientStore = clientStore;
+            _customerStore = clientStore;
             //_customerValidator = customerValidator
         }
 
-        public async Task<Customer> AddCustomerAsync(Customer customer)
+        public async Task<IdentityResult> AddCustomerAsync(Customer customer)
         {
             //use validacions
-            if (customer != null)
+            try
             {
-                await _clientStore.CreateAsync(customer);
+                await _customerStore.AddCustomerAsync(customer);
             }
-            return customer;
+            catch (Exception ex)
+            {
+                return IdentityResult.Failed(new IdentityError() { Code = ICustomerService.DbErrorCode, Description = ex.Message });
+            }
+            return IdentityResult.Success;
         }
 
         public async Task<IEnumerable<Customer>> GetAllCustomersAsync()
         {
-            return await _clientStore.GetAllAsync();
+            return await _customerStore.GetAllAsync();
         }
 
         public async Task DeleteCustomerAsync(int Id)
         {
-            var customer = await _clientStore.GetByIdAsync(Id);
+            var customer = await _customerStore.GetByIdAsync(Id);
             if (customer != null)
             {
-                await _clientStore.DeleteAsync(Id);
+                await _customerStore.DeleteAsync(Id);
             }
         }
     }
