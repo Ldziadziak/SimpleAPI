@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Moq;
-using SimpleAPI.Data;
+using SimpleAPI.Interfaces;
 using SimpleAPI.Models;
 using SimpleAPI.Services;
 
@@ -86,28 +86,47 @@ namespace SimpleAPITests
             // Assert
             mockCustomerStore.Verify(x => x.DeleteAsync(customerId), Times.Once);
         }
-
-
         [Fact]
-        public async Task DeleteCustomerAsync_NonExistingCustomerId()
+        public async Task DeleteCustomerAsync_NonExistingCustomerId_Failure()
         {
             // Arrange
             var mockCustomerStore = new Mock<ICustomerStore>();
-            Customer customer = null!;
-
             var customerService = new CustomerService(mockCustomerStore.Object);
             var customerId = 1;
 
-            // Mock the behavior of the GetByIdAsync method to return the added customer
-            mockCustomerStore.Setup(x => x.GetByIdAsync(customerId)).ReturnsAsync(customer);
+            // Mock the behavior of the GetByIdAsync method to throw an EntityNotFoundException
+            mockCustomerStore.Setup(x => x.GetByIdAsync(customerId)).Throws(new EntityNotFoundException(customerId, "abc"));
 
             // Act
-            await customerService.AddCustomerAsync(customer);
-            await customerService.DeleteCustomerAsync(customerId);
+            var result = await customerService.DeleteCustomerAsync(customerId);
 
             // Assert
+            Assert.False(result.Succeeded);
+            Assert.Contains(ICustomerService.NotFoundErrorCode, result.Errors.Select(e => e.Code));
             mockCustomerStore.Verify(x => x.DeleteAsync(customerId), Times.Never);
         }
 
+        [Fact]
+        public async Task DeleteCustomerAsync_StoreThrowsException_Failure()
+        {
+            // Arrange
+            var mockCustomerStore = new Mock<ICustomerStore>();
+            var customerService = new CustomerService(mockCustomerStore.Object);
+            var customerId = 1;
+
+            // Mock the behavior of the GetByIdAsync method to return a customer with the given id
+            mockCustomerStore.Setup(x => x.GetByIdAsync(customerId)).ReturnsAsync(new Customer() { Id = customerId });
+
+            // Mock the behavior of the DeleteAsync method to throw an exception
+            mockCustomerStore.Setup(x => x.DeleteAsync(customerId)).ThrowsAsync(new Exception("Database error"));
+
+            // Act
+            var result = await customerService.DeleteCustomerAsync(customerId);
+
+            // Assert
+            Assert.False(result.Succeeded);
+            Assert.Contains(ICustomerService.DbErrorCode, result.Errors.Select(e => e.Code));
+            mockCustomerStore.Verify(x => x.DeleteAsync(customerId), Times.Once);
+        }
     }
 }

@@ -1,4 +1,5 @@
 using SimpleAPI.Data;
+using SimpleAPI.Interfaces;
 using SimpleAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);

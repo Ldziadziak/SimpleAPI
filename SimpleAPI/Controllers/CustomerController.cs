@@ -1,8 +1,8 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SimpleAPI.DTO;
+using SimpleAPI.Interfaces;
 using SimpleAPI.Models;
-using SimpleAPI.Services;
 
 namespace SimpleAPI.Controllers
 {
@@ -38,7 +38,7 @@ namespace SimpleAPI.Controllers
             else
             {
                 return ToResult(response);
-            };
+            }
         }
 
 
@@ -55,7 +55,7 @@ namespace SimpleAPI.Controllers
             else
             {
                 _logger.LogInformation("Retrieving all customers");
-                return Ok(customers.Select(r => _mapper.Map<CustomerDto>(r)).ToList());
+                return Ok(customers);
             }
         }
 
@@ -72,7 +72,7 @@ namespace SimpleAPI.Controllers
             else
             {
                 return ToResult(response);
-            };
+            }
         }
 
         private ActionResult ToResult(Microsoft.AspNetCore.Identity.IdentityResult serviceResponse)

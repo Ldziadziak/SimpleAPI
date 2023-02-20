@@ -1,6 +1,6 @@
 ﻿using SimpleAPI.Models;
 
-namespace SimpleAPI.Data
+namespace SimpleAPI.Interfaces
 {
     public interface ICustomerStore
     {

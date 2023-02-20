@@ -1,7 +1,7 @@
 ﻿namespace SimpleAPI.Services
 {
     using Microsoft.AspNetCore.Identity;
-    using SimpleAPI.Data;
+    using SimpleAPI.Interfaces;
     using SimpleAPI.Models;
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -11,9 +11,9 @@
         private readonly ICustomerStore _customerStore;
         //private readonly ICustomerValidator _customerValidator
 
-        public CustomerService(ICustomerStore clientStore)
+        public CustomerService(ICustomerStore customerStore)
         {
-            _customerStore = clientStore;
+            _customerStore = customerStore;
             //_customerValidator = customerValidator
         }
 
@@ -44,15 +44,34 @@
 
         public async Task<IdentityResult> DeleteCustomerAsync(int Id)
         {
-            var customer = await _customerStore.GetByIdAsync(Id);
+            var customer = new Customer();
 
-            if (customer == null)
-                return IdentityResult.Success;
+            try
+            {
+                customer = await _customerStore.GetByIdAsync(Id);
+            }
+            catch (EntityNotFoundException ex)
+            {
+                return IdentityResult.Failed(new IdentityError() { Code = ICustomerService.NotFoundErrorCode, Description = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return IdentityResult.Failed(new IdentityError() { Code = ICustomerService.DbErrorCode, Description = ex.Message });
+            }
 
-            // ensure we can delete client i.e. no users exist
-            await _customerStore.DeleteAsync(customer.Id);
+            // ensure we can delete customer i.e. no users exist
+            try
+            {
+                await _customerStore.DeleteAsync(customer.Id);
+            }
+            catch (Exception ex)
+            {
+                return IdentityResult.Failed(new IdentityError() { Code = ICustomerService.DbErrorCode, Description = ex.Message });
+            }
+
             return IdentityResult.Success;
         }
+
     }
 
 }

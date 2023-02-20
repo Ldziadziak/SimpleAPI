@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SimpleAPI.Models;
 
-namespace SimpleAPI.Services
+namespace SimpleAPI.Interfaces
 {
     public interface ICustomerService
     {
