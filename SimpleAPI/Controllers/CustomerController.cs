@@ -7,7 +7,7 @@ using SimpleAPI.Models;
 namespace SimpleAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/customers")]
     public class CustomerController : ControllerBase
     {
 
@@ -23,6 +23,7 @@ namespace SimpleAPI.Controllers
         }
 
         [HttpPost]
+        [Route("AddCustomer")]
         public async Task<ActionResult> AddCustomerAsync(CustomerDto dto)
         {
             var customer = _mapper.Map<Customer>(dto);
@@ -43,6 +44,7 @@ namespace SimpleAPI.Controllers
 
 
         [HttpGet]
+        [Route("GetCustomers")]
         public async Task<ActionResult> GetAllCustomersAsync()
         {
 
@@ -59,7 +61,7 @@ namespace SimpleAPI.Controllers
             }
         }
 
-        [HttpDelete("{customerId}")]
+        [HttpDelete("DeleteCustomer/{customerId}")]
         public async Task<ActionResult> DeleteCustomerAsync(int customerId)
         {
             var response = await _customerService.DeleteCustomerAsync(customerId);
