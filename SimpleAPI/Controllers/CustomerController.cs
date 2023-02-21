@@ -63,14 +63,16 @@ namespace SimpleAPI.Controllers
         public async Task<ActionResult> DeleteCustomerAsync(int customerId)
         {
             var response = await _customerService.DeleteCustomerAsync(customerId);
-            _logger.LogInformation($"Deleted customer with ID {customerId}");
+
 
             if (response.Succeeded)
             {
+                _logger.LogInformation($"Deleted customer with ID {customerId}");
                 return Ok();
             }
             else
             {
+                _logger.LogInformation(response.ToString());
                 return ToResult(response);
             }
         }
