@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleAPITests", "SimpleAPI
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{98EF7BEB-DC8A-4B87-BED4-90F6FA89B621}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatGPTLibrary", "ChatGPTLibrary\ChatGPTLibrary.csproj", "{1E1BD663-2B68-4E6B-90A9-3F46316B05B2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{98EF7BEB-DC8A-4B87-BED4-90F6FA89B621}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98EF7BEB-DC8A-4B87-BED4-90F6FA89B621}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98EF7BEB-DC8A-4B87-BED4-90F6FA89B621}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E1BD663-2B68-4E6B-90A9-3F46316B05B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E1BD663-2B68-4E6B-90A9-3F46316B05B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E1BD663-2B68-4E6B-90A9-3F46316B05B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E1BD663-2B68-4E6B-90A9-3F46316B05B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

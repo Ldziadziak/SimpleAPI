@@ -1,8 +1,7 @@
-﻿namespace SimpleAPI.DTO
+﻿namespace SimpleAPI.DTO;
+
+public class CustomerDto
 {
-    public class CustomerDto
-    {
-        public string Name { get; set; } = default!;
-        public string Surname { get; set; } = default!;
-    }
+    public string Name { get; set; } = default!;
+    public string Surname { get; set; } = default!;
 }
