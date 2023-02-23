@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.Extensions.DependencyInjection;
 
-using ChatGPTLibrary;
 using SimpleAPI.Data;
 using SimpleAPI.Interfaces;
 using SimpleAPI.Services;
@@ -11,7 +10,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddSingleton<ICustomerStore, InMemoryCustomerStore>();
-        services.AddTransient<IChatGPT, ChatGPT>();
+        services.AddTransient<ChatGptService, ChatGptService>();
         return services;
     }
 }
