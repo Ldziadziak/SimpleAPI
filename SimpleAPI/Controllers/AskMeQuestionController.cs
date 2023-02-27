@@ -8,18 +8,22 @@ namespace SimpleAPI.Controllers;
 public class AskMeQuestionController : ControllerBase
 {
     private readonly ILogger<AskMeQuestionController> _logger;
-    private readonly ChatGptService _chatGptService;
-    public AskMeQuestionController(ILogger<AskMeQuestionController> logger, ChatGptService chatGptService)
+    private readonly IConfiguration _configuration;
+    private readonly AiChatService _aiChatService;
+    public AskMeQuestionController(ILogger<AskMeQuestionController> logger, IConfiguration configuration, AiChatService aiChatService)
     {
         _logger = logger;
-        _chatGptService = chatGptService;
+        _configuration = configuration;
+        _aiChatService = aiChatService;
     }
 
     [HttpGet]
     [Route("/question/{question}")]
     public async Task<ActionResult> ReciveAnswerAsync(string question)
     {
-        var answer = await _chatGptService.AskMeQuestionAsync(question);
+        var aiServiceName = _configuration.GetValue<string>("DefaultAIService");
+        //verify appsetings
+        var answer = await _aiChatService.RunAiChatDll(aiServiceName, new object[] { question });
 
         if (answer == null)
         {

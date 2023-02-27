@@ -10,7 +10,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddSingleton<ICustomerStore, InMemoryCustomerStore>();
-        services.AddTransient<ChatGptService, ChatGptService>();
+        services.AddTransient<AiChatService, AiChatService>();
         return services;
     }
 }
