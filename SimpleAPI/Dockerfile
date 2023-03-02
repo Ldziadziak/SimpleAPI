@@ -1,9 +1,8 @@
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 EXPOSE 80
 EXPOSE 443
-EXPOSE 8080
 
 COPY ["SimpleAPI/SimpleAPI.csproj", "SimpleAPI/"]
 COPY ["ChatGPTLibrary/ChatGPTLibrary.csproj", "ChatGPTLibrary/"]
@@ -20,7 +19,7 @@ WORKDIR /src/ChatGPTLibrary
 RUN dotnet build "ChatGPTLibrary.csproj" -c Release -o /app/publish
 
 # Final stage
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "SimpleAPI.dll"]
