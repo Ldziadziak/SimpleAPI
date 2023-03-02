@@ -1,0 +1,57 @@
+﻿@model HomeViewModel
+
+<style>
+   .form-container {
+   margin-top: 20px;
+   }
+   .result-container {
+   margin-top: 20px;
+   }
+   .answer-container {
+   margin-top: 20px;
+   }
+   .button-panel {
+   margin-top: 10px;
+   }
+   .form-control {
+   margin-bottom: 10px;
+   }
+   .btn {
+   font-size: 16px;
+   padding: 8px 16px;
+   }
+   textarea {
+   height: 350px;
+   }
+</style>
+
+<div class="container form-container">
+   <form asp-controller="Home" >
+      <div class="form-group">
+         <input class="form-control" placeholder="Ask me something" asp-for="Question" autofocus>
+      </div>
+      <div class="button-panel">
+         <button class="btn btn-primary" name="button" value="question">Submit</button>
+      </div>
+   </form>
+</div>
+
+@if (!String.IsNullOrEmpty(Model.Answer))
+{
+<div class="container answer-container">
+   <div class="form-group">
+      <textarea class="form-control" asp-for="Answer" readonly></textarea>
+   </div>
+   <div class="button-panel">
+     <button class="btn btn-primary" onclick="copyAnswer()">Copy</button>
+   </div>
+</div>
+}
+
+<script>
+   function copyAnswer() {
+       var answerElement = document.querySelector('textarea[name="Answer"]');
+       answerElement.select();
+       document.execCommand('copy');
+   }
+</script>

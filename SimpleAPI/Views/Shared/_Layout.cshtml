@@ -1,0 +1,34 @@
+﻿@using Microsoft.AspNetCore.Http.Extensions; 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UI</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <footer class="mt-auto">
+        <p class="text-center">hi, i'm UI and API!</p>
+        <div class="d-flex justify-content-center">
+            <ul class="list-inline">
+                <li class="list-inline-item"><a href="https://github.com/Ldziadziak/SimpleAPI">My code</a></li>
+                <li class="list-inline-item"><a href="@Context.Request.GetEncodedUrl()swagger">My swagger</a></li>
+            </ul>
+        </div>
+    </footer>
+</body>
+</html>
