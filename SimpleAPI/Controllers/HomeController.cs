@@ -23,7 +23,7 @@ public class HomeController : Controller
 
         if (!string.IsNullOrEmpty(question))
         {
-            answer = await _aiChatService.RunAiChatDll(aiServiceName, new object[] { question });
+            answer = await _aiChatService.RunAiChatDll(aiServiceName!, new object[] { question });
             _logger.LogInformation("Retrieving answer");
             _logger.LogInformation(question);
             _logger.LogInformation(answer);

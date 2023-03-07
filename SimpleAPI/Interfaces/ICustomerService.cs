@@ -11,5 +11,6 @@ public interface ICustomerService
 
     Task<IdentityResult> AddCustomerAsync(Customer customer);
     Task<IEnumerable<Customer?>> GetAllCustomersAsync();
+    Task<Customer?> GetCustomerAsync(int Id);
     Task<IdentityResult> DeleteCustomerAsync(int Id);
 }

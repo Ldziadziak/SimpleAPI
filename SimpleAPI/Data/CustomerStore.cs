@@ -20,7 +20,9 @@ public class InMemoryCustomerStore : ICustomerStore
         {
             customer.Id = _customers.Count + 1;
         }
+
         _customers.Add(customer);
+
         return await Task.FromResult(customer);
     }
 
@@ -32,6 +34,7 @@ public class InMemoryCustomerStore : ICustomerStore
             _logger.LogDebug($"Failed to get customer with id {customerId}");
             throw new EntityNotFoundException(customerId, $"Failed to get customer {customerId} from db");
         }
+
         return customer;
     }
 

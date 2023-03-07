@@ -42,13 +42,23 @@ public class CustomerService : ICustomerService
         return customers;
     }
 
-    public async Task<IdentityResult> DeleteCustomerAsync(int Id)
+    public async Task<Customer?> GetCustomerAsync(int Id)
     {
-        var customer = new Customer();
+        var customerExistAsync = await CustomerExistAsync(Id);
 
+        if (customerExistAsync == IdentityResult.Success)
+        {
+            return await _customerStore.GetByIdAsync(Id);
+        }
+
+        return null!;
+    }
+
+    public async Task<IdentityResult> CustomerExistAsync(int Id)
+    {
         try
         {
-            customer = await _customerStore.GetByIdAsync(Id);
+            await _customerStore.GetByIdAsync(Id);
         }
         catch (EntityNotFoundException ex)
         {
@@ -59,17 +69,25 @@ public class CustomerService : ICustomerService
             return IdentityResult.Failed(new IdentityError() { Code = ICustomerService.DbErrorCode, Description = ex.Message });
         }
 
-        // ensure we can delete customer i.e. no users exist
-        try
-        {
-            await _customerStore.DeleteAsync(customer.Id);
-        }
-        catch (Exception ex)
-        {
-            return IdentityResult.Failed(new IdentityError() { Code = ICustomerService.DbErrorCode, Description = ex.Message });
-        }
-
         return IdentityResult.Success;
     }
 
+    public async Task<IdentityResult> DeleteCustomerAsync(int Id)
+    {
+        var customerExistAsync = await CustomerExistAsync(Id);
+
+        if (customerExistAsync == IdentityResult.Success)
+        {
+            try
+            {
+                await _customerStore.DeleteAsync(Id);
+            }
+            catch (Exception ex)
+            {
+                return IdentityResult.Failed(new IdentityError() { Code = ICustomerService.DbErrorCode, Description = ex.Message });
+            }
+        }
+
+        return customerExistAsync;
+    }
 }

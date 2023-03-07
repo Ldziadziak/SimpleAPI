@@ -23,7 +23,7 @@ public class AskMeQuestionController : ControllerBase
     {
         var aiServiceName = _configuration.GetValue<string>("DefaultAIService");
         //verify appsetings
-        var answer = await _aiChatService.RunAiChatDll(aiServiceName, new object[] { question });
+        var answer = await _aiChatService.RunAiChatDll(aiServiceName!, new object[] { question });
 
         if (answer == null)
         {

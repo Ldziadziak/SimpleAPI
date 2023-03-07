@@ -24,7 +24,7 @@ public class CustomerController : ControllerBase
 
     [HttpPost]
     [Route("AddCustomer")]
-    public async Task<ActionResult> AddCustomerAsync(CustomerDto dto)
+    public async Task<ActionResult> AddCustomerAsync([FromBody] CustomerDto dto)
     {
         var customer = _mapper.Map<Customer>(dto);
         var response = await _customerService.AddCustomerAsync(customer);
@@ -34,7 +34,7 @@ public class CustomerController : ControllerBase
 
         if (response.Succeeded)
         {
-            return Ok();
+            return CreatedAtRoute("GetCustomer", new { customerId = customer.Id }, dto);
         }
         else
         {
@@ -42,10 +42,28 @@ public class CustomerController : ControllerBase
         }
     }
 
+    [HttpGet]
+    [Route("GetCustomer/{customerId}", Name = "GetCustomer")]
+    [Produces("application/json")]
+    public async Task<ActionResult<Customer>> GetCustomersAsync(int customerId)
+    {
+        var customer = await _customerService.GetCustomerAsync(customerId);
+        if (customer == null)
+        {
+            return NotFound($"Customer not found");
+        }
+        else
+        {
+            _logger.LogInformation("Retrieving customer");
+            return Ok(customer);
+        }
+    }
+
 
     [HttpGet]
     [Route("GetCustomers")]
-    public async Task<ActionResult> GetAllCustomersAsync()
+    [Produces("application/json")]
+    public async Task<ActionResult<IEnumerable<CustomerDto>>> GetAllCustomersAsync()
     {
 
         var customers = await _customerService.GetAllCustomersAsync();
@@ -65,7 +83,6 @@ public class CustomerController : ControllerBase
     public async Task<ActionResult> DeleteCustomerAsync(int customerId)
     {
         var response = await _customerService.DeleteCustomerAsync(customerId);
-
 
         if (response.Succeeded)
         {
