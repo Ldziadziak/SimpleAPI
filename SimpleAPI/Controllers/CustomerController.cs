@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using SimpleAPI.DTO;
 using SimpleAPI.Interfaces;
@@ -7,6 +8,7 @@ using SimpleAPI.Models;
 namespace SimpleAPI.Controllers;
 
 [ApiController]
+[ApiVersion("1.1")]
 [Route("api/customers")]
 public class CustomerController : ControllerBase
 {
@@ -22,13 +24,11 @@ public class CustomerController : ControllerBase
         _mapper = mapper;
     }
 
-    [HttpPost]
-    [Route("AddCustomer")]
+    [HttpPost("AddCustomer")]
     public async Task<ActionResult> AddCustomerAsync([FromBody] CustomerDto dto)
     {
         var customer = _mapper.Map<Customer>(dto);
         var response = await _customerService.AddCustomerAsync(customer);
-        //if something went wrong return BadRequest(errs); add validations
 
         _logger.LogInformation($"Added customer with ID {customer.Id}");
 
@@ -42,8 +42,7 @@ public class CustomerController : ControllerBase
         }
     }
 
-    [HttpGet]
-    [Route("GetCustomer/{customerId}", Name = "GetCustomer")]
+    [HttpGet("GetCustomer/{customerId}", Name = "GetCustomer")]
     [Produces("application/json")]
     public async Task<ActionResult<Customer>> GetCustomersAsync(int customerId)
     {
@@ -60,8 +59,7 @@ public class CustomerController : ControllerBase
     }
 
 
-    [HttpGet]
-    [Route("GetCustomers")]
+    [HttpGet("GetCustomers")]
     [Produces("application/json")]
     public async Task<ActionResult<IEnumerable<CustomerDto>>> GetAllCustomersAsync()
     {
@@ -94,6 +92,38 @@ public class CustomerController : ControllerBase
             _logger.LogInformation(response.ToString());
             return ToResult(response);
         }
+    }
+
+    [HttpPatch("{customerId}")]
+    //[{ "operationType": 0, "path": "/name", "op": "replace", "value": "John" }]
+    public async Task<ActionResult> PartiallyUpdateCustomer(int customerId, JsonPatchDocument<CustomerDto> patchDocument)
+    {
+        var customer = await _customerService.GetCustomerAsync(customerId);
+        if (customer == null)
+        {
+            return NotFound();
+        }
+
+        var customerToPatch = _mapper.Map<CustomerDto>(customer);
+
+        patchDocument.ApplyTo(customerToPatch, ModelState);
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        if (!TryValidateModel(customerToPatch))
+        {
+            return BadRequest(ModelState);
+        }
+
+#pragma warning disable S1854 // Unnecessary assignment of a value
+        customer = _mapper.Map(customerToPatch, customer);
+#pragma warning restore S1854 // Unnecessary assignment of a value
+        await _customerService.SaveChangesAsync();
+
+        return NoContent();
     }
 
     private ActionResult ToResult(Microsoft.AspNetCore.Identity.IdentityResult serviceResponse)

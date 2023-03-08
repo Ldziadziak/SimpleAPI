@@ -8,4 +8,5 @@ public interface ICustomerStore
     Task<Customer> GetByIdAsync(int customerId);
     Task<IEnumerable<Customer>> GetAllAsync();
     Task DeleteAsync(int customerId);
+    Task<int> SaveChangesAsync();
 }

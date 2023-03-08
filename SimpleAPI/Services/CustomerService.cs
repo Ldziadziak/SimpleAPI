@@ -90,4 +90,9 @@ public class CustomerService : ICustomerService
 
         return customerExistAsync;
     }
+
+    public async Task<bool> SaveChangesAsync()
+    {
+        return (await _customerStore.SaveChangesAsync() >= 0);
+    }
 }

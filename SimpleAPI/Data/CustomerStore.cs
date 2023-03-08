@@ -50,4 +50,11 @@ public class InMemoryCustomerStore : ICustomerStore
 
         await Task.CompletedTask;
     }
+
+    public async Task<int> SaveChangesAsync()
+    {
+        await Task.Delay(500);
+
+        return 1;
+    }
 }

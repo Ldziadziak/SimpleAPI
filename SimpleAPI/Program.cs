@@ -12,6 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(CustomerMapper).Assembly);
 builder.Services.AddLocalServices();
+builder.Services.AddMvc().AddNewtonsoftJson(); //for JsonPatch
 builder.Host.UseSerilog((ctx, lc) => lc.ReadFrom.Configuration(ctx.Configuration));
 builder.Services.AddControllersWithViews();
 
