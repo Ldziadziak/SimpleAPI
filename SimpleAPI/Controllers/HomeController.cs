@@ -1,19 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SimpleAPI.Interfaces;
 using SimpleAPI.Models;
-using SimpleAPI.Services;
 
 namespace SimpleAPI.Controllers;
-
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IConfiguration _configuration;
-    private readonly AiChatService _aiChatService;
-    public HomeController(ILogger<HomeController> logger, IConfiguration configuration, AiChatService aiChatService)
+    private readonly IAiChatService _aiChatService;
+    public HomeController(ILogger<HomeController> logger, IConfiguration configuration, IAiChatService aiChatService)
     {
-        _logger = logger;
-        _configuration = configuration;
-        _aiChatService = aiChatService;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        _aiChatService = aiChatService ?? throw new ArgumentNullException(nameof(aiChatService));
     }
 
     [AcceptVerbs("GET", "POST")]

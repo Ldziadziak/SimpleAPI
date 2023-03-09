@@ -1,25 +1,22 @@
-﻿namespace SimpleAPI.Services;
-
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using SimpleAPI.Interfaces;
 using SimpleAPI.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
+namespace SimpleAPI.Services;
 
 public class CustomerService : ICustomerService
 {
     private readonly ICustomerStore _customerStore;
-    //private readonly ICustomerValidator _customerValidator
-
-    public CustomerService(ICustomerStore customerStore)
+    private readonly ILogger<CustomerService> _logger;
+    public CustomerService(ICustomerStore customerStore, ILogger<CustomerService> logger)
     {
-        _customerStore = customerStore;
-        //_customerValidator = customerValidator
+        _customerStore = customerStore ?? throw new ArgumentNullException(nameof(customerStore));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<IdentityResult> AddCustomerAsync(Customer customer)
     {
-        //use validacions
+        //use valid
         try
         {
             await _customerStore.AddCustomerAsync(customer);
@@ -62,10 +59,12 @@ public class CustomerService : ICustomerService
         }
         catch (EntityNotFoundException ex)
         {
+            _logger.LogCritical($"Exception while geting customer {Id}", ex);
             return IdentityResult.Failed(new IdentityError() { Code = ICustomerService.NotFoundErrorCode, Description = ex.Message });
         }
         catch (Exception ex)
         {
+            _logger.LogCritical($"Exception while geting customer {Id}", ex);
             return IdentityResult.Failed(new IdentityError() { Code = ICustomerService.DbErrorCode, Description = ex.Message });
         }
 
@@ -84,6 +83,7 @@ public class CustomerService : ICustomerService
             }
             catch (Exception ex)
             {
+                _logger.LogCritical($"Exception while deleting customer {Id}", ex);
                 return IdentityResult.Failed(new IdentityError() { Code = ICustomerService.DbErrorCode, Description = ex.Message });
             }
         }

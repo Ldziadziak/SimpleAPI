@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using SimpleAPI.Services;
+using SimpleAPI.Interfaces;
 
 namespace SimpleAPI.Controllers;
 
@@ -9,12 +9,12 @@ public class AskMeQuestionController : ControllerBase
 {
     private readonly ILogger<AskMeQuestionController> _logger;
     private readonly IConfiguration _configuration;
-    private readonly AiChatService _aiChatService;
-    public AskMeQuestionController(ILogger<AskMeQuestionController> logger, IConfiguration configuration, AiChatService aiChatService)
+    private readonly IAiChatService _aiChatService;
+    public AskMeQuestionController(ILogger<AskMeQuestionController> logger, IConfiguration configuration, IAiChatService aiChatService)
     {
-        _logger = logger;
-        _configuration = configuration;
-        _aiChatService = aiChatService;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        _aiChatService = aiChatService ?? throw new ArgumentNullException(nameof(aiChatService));
     }
 
     [HttpGet]

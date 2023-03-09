@@ -16,12 +16,14 @@ public class CustomerController : ControllerBase
     private readonly ILogger<CustomerController> _logger;
     private readonly ICustomerService _customerService;
     private readonly IMapper _mapper;
+    private readonly IMailService _mailService;
 
-    public CustomerController(ILogger<CustomerController> logger, ICustomerService customer, IMapper mapper)
+    public CustomerController(ILogger<CustomerController> logger, ICustomerService customer, IMapper mapper, IMailService mailService)
     {
-        _logger = logger;
-        _customerService = customer;
-        _mapper = mapper;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _customerService = customer ?? throw new ArgumentNullException(nameof(customer));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _mailService = mailService ?? throw new ArgumentNullException(nameof(mailService));
     }
 
     [HttpPost("AddCustomer")]
@@ -30,10 +32,12 @@ public class CustomerController : ControllerBase
         var customer = _mapper.Map<Customer>(dto);
         var response = await _customerService.AddCustomerAsync(customer);
 
-        _logger.LogInformation($"Added customer with ID {customer.Id}");
+
 
         if (response.Succeeded)
         {
+            _logger.LogInformation($"Added customer with ID {customer.Id}");
+            _mailService.Send("Added customer", $"Added customer with ID {customer.Id}");
             return CreatedAtRoute("GetCustomer", new { customerId = customer.Id }, dto);
         }
         else
@@ -57,7 +61,6 @@ public class CustomerController : ControllerBase
             return Ok(customer);
         }
     }
-
 
     [HttpGet("GetCustomers")]
     [Produces("application/json")]
@@ -85,6 +88,7 @@ public class CustomerController : ControllerBase
         if (response.Succeeded)
         {
             _logger.LogInformation($"Deleted customer with ID {customerId}");
+            _mailService.Send("Deleted customer", $"Deleted customer with ID {customerId}");
             return Ok();
         }
         else

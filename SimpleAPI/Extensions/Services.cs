@@ -10,7 +10,13 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddSingleton<ICustomerStore, InMemoryCustomerStore>();
-        services.AddTransient<AiChatService, AiChatService>();
+        services.AddTransient<IAiChatService, AiChatService>();
+#if DEBUG
+        services.AddTransient<IMailService, LocalMailService>();
+#else 
+        services.AddTransient<IMailService, CloudMailService>();
+#endif
+
         return services;
     }
 }

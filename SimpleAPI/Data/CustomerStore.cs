@@ -11,7 +11,7 @@ public class InMemoryCustomerStore : ICustomerStore
 
     public InMemoryCustomerStore(ILogger<CustomerController> logger)
     {
-        _logger = logger;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<Customer> AddCustomerAsync(Customer customer)
@@ -31,7 +31,7 @@ public class InMemoryCustomerStore : ICustomerStore
         var customer = await Task.FromResult(_customers.FirstOrDefault(c => c.Id == customerId)!);
         if (customer == null)
         {
-            _logger.LogDebug($"Failed to get customer with id {customerId}");
+            _logger.LogWarning($"Failed to get customer with id {customerId}");
             throw new EntityNotFoundException(customerId, $"Failed to get customer {customerId} from db");
         }
 

@@ -1,5 +1,4 @@
 ﻿using SimpleAPI.Models;
-
 namespace SimpleAPI.Interfaces;
 
 public interface ICustomerStore
