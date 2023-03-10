@@ -1,60 +1,63 @@
-﻿using SimpleAPI.Controllers;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using SimpleAPI.Controllers;
+using SimpleAPI.DbContexts;
 using SimpleAPI.Interfaces;
 using SimpleAPI.Models;
 
 namespace SimpleAPI.Data;
 
-public class InMemoryCustomerStore : ICustomerStore
+public class DbCustomerStore : ICustomerStore
 {
-    private readonly List<Customer> _customers = new List<Customer>();
     private readonly ILogger<CustomerController> _logger;
+    private readonly CustomerContext _context;
+    private readonly IMapper _mapper;
 
-    public InMemoryCustomerStore(ILogger<CustomerController> logger)
+    public DbCustomerStore(ILogger<CustomerController> logger, CustomerContext context, IMapper mapper)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
     public async Task<Customer> AddCustomerAsync(Customer customer)
     {
-        if (customer.Id == 0)
-        {
-            customer.Id = _customers.Count + 1;
-        }
+        var entity = _mapper.Map<Entities.Customer>(customer);
+        _context.Add(entity);
+        await _context.SaveChangesAsync();
 
-        _customers.Add(customer);
+        _mapper.Map<Entities.Customer, Customer>(entity, customer);  // customer.Id = entity.Id;
 
         return await Task.FromResult(customer);
     }
 
     public async Task<Customer> GetByIdAsync(int customerId)
     {
-        var customer = await Task.FromResult(_customers.FirstOrDefault(c => c.Id == customerId)!);
+        var customer = await Task.FromResult(_context.customer.FirstOrDefault(c => c.Id == customerId)!);
         if (customer == null)
         {
             _logger.LogWarning($"Failed to get customer with id {customerId}");
             throw new EntityNotFoundException(customerId, $"Failed to get customer {customerId} from db");
         }
 
-        return customer;
+        return _mapper.Map<Customer>(customer);
     }
 
     public async Task<IEnumerable<Customer>> GetAllAsync()
     {
-        return await Task.FromResult(_customers.AsEnumerable());
+        var customers = await _context.customer.ToListAsync(); 
+        return customers.Select(c => _mapper.Map<Customer>(c));
     }
 
     public async Task DeleteAsync(int customerId)
     {
-        var customer = _customers.FirstOrDefault(c => c.Id == customerId);
-        _customers.Remove(customer!);
+        var customer = _context.customer.FirstOrDefault(c => c.Id == customerId);
+        _context.customer.Remove(customer!);
 
         await Task.CompletedTask;
     }
-
     public async Task<int> SaveChangesAsync()
     {
-        await Task.Delay(500);
-
-        return 1;
+        return await _context.SaveChangesAsync();
     }
 }

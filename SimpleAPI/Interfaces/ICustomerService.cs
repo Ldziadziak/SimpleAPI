@@ -13,4 +13,5 @@ public interface ICustomerService
     Task<Customer?> GetCustomerAsync(int Id);
     Task<IdentityResult> DeleteCustomerAsync(int Id);
     Task<bool> SaveChangesAsync();
+    Task<IdentityResult> CustomerExistAsync(int customerId);
 }

@@ -1,4 +1,5 @@
 using Serilog;
+using SimpleAPI.DbContexts;
 using SimpleAPI.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,9 +15,16 @@ builder.Services.AddAutoMapper(typeof(CustomerMapper).Assembly);
 builder.Services.AddLocalServices();
 builder.Services.AddMvc().AddNewtonsoftJson(); //for JsonPatch
 builder.Services.AddControllersWithViews();
+builder.Services.AddEntityFrameworkSqlite().AddDbContext<CustomerContext>();
 builder.Host.UseSerilog((ctx, lc) => lc.ReadFrom.Configuration(ctx.Configuration));
 
 var app = builder.Build();
+
+using (var db = new CustomerContext())
+{
+    db.Database.EnsureCreated();
+    // db.Database.Migrate();
+}
 
 if (app.Environment.IsDevelopment())
 {
