@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using SimpleAPI.Interfaces;
 using SimpleAPI.Models;
 
@@ -39,7 +40,7 @@ public class CustomerService : ICustomerService
         return customers;
     }
 
-    public async Task<Customer?> GetCustomerAsync(int Id)
+    public async Task<Entities.Customer?> GetCustomerAsync(int Id)
     {
         var customerExistAsync = await CustomerExistAsync(Id);
 
@@ -80,6 +81,7 @@ public class CustomerService : ICustomerService
             try
             {
                 await _customerStore.DeleteAsync(Id);
+                await _customerStore.SaveChangesAsync();
             }
             catch (Exception ex)
             {

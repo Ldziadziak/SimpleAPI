@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SimpleAPI.DTO;
 using SimpleAPI.Interfaces;
 using SimpleAPI.Models;
@@ -31,8 +32,6 @@ public class CustomerController : ControllerBase
     {
         var customer = _mapper.Map<Customer>(dto);
         var response = await _customerService.AddCustomerAsync(customer);
-
-
 
         if (response.Succeeded)
         {
@@ -98,17 +97,17 @@ public class CustomerController : ControllerBase
         }
     }
 
-    [HttpPatch("{customerId}")]
+    [HttpPatch("Patch/Customer/{customerId}")]
     //[{ "operationType": 0, "path": "/name", "op": "replace", "value": "John" }]
-    public async Task<ActionResult> PartiallyUpdateCustomer(int customerId, JsonPatchDocument<CustomerDto> patchDocument)
+    public async Task<ActionResult> UpdateCustomer(int customerId, JsonPatchDocument<CustomerDto> patchDocument)
     {
-        var customer = await _customerService.GetCustomerAsync(customerId);
-        if (customer == null)
+        var customerEntity = await _customerService.GetCustomerAsync(customerId);
+        if (customerEntity == null)
         {
             return NotFound();
         }
 
-        var customerToPatch = _mapper.Map<CustomerDto>(customer);
+        var customerToPatch = _mapper.Map<CustomerDto>(customerEntity);
 
         patchDocument.ApplyTo(customerToPatch, ModelState);
 
@@ -122,9 +121,7 @@ public class CustomerController : ControllerBase
             return BadRequest(ModelState);
         }
 
-#pragma warning disable S1854 // Unnecessary assignment of a value
-        customer = _mapper.Map(customerToPatch, customer);
-#pragma warning restore S1854 // Unnecessary assignment of a value
+        _mapper.Map(customerToPatch, customerEntity);
         await _customerService.SaveChangesAsync();
 
         return NoContent();
