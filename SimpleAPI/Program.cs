@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Serilog;
 using SimpleAPI.DbContexts;
 using SimpleAPI.Utils;

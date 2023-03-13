@@ -40,12 +40,12 @@ public class DbCustomerStore : ICustomerStore
             throw new EntityNotFoundException(customerId, $"Failed to get customer {customerId} from db");
         }
 
-        return _mapper.Map<Customer>(customer);
+        return customer;
     }
 
     public async Task<IEnumerable<Customer>> GetAllAsync()
     {
-        var customers = await _context.customer.ToListAsync(); 
+        var customers = await _context.customer.ToListAsync();
         return customers.Select(c => _mapper.Map<Customer>(c));
     }
 
