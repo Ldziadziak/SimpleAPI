@@ -7,6 +7,7 @@ public class CustomerContext : DbContext
 {
     //dotnet ef migrations add InitialCreate
     public DbSet<Customer> customer { get; set; } = null!;
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlite("Filename=DB/MyDatabase.db");
