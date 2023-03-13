@@ -51,20 +51,20 @@ public class CustomerService : ICustomerService
         return null!;
     }
 
-    public async Task<IdentityResult> CustomerExistAsync(int Id)
+    public async Task<IdentityResult> CustomerExistAsync(int customerId)
     {
         try
         {
-            await _customerStore.GetByIdAsync(Id);
+            await _customerStore.GetByIdAsync(customerId);
         }
         catch (EntityNotFoundException ex)
         {
-            _logger.LogCritical($"Exception while geting customer {Id}", ex);
+            _logger.LogCritical($"Exception while geting customer {customerId}", ex);
             return IdentityResult.Failed(new IdentityError() { Code = ICustomerService.NotFoundErrorCode, Description = ex.Message });
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Exception while geting customer {Id}", ex);
+            _logger.LogCritical($"Exception while geting customer {customerId}", ex);
             return IdentityResult.Failed(new IdentityError() { Code = ICustomerService.DbErrorCode, Description = ex.Message });
         }
 

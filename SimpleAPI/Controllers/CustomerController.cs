@@ -8,8 +8,9 @@ using SimpleAPI.Models;
 namespace SimpleAPI.Controllers;
 
 [ApiController]
-[ApiVersion("1.1")]
-[Route("api/customers")]
+[ApiVersion("1.0")]
+[ApiVersion("2.0")]
+[Route("api/v{version:apiVersion}/customers")]
 public class CustomerController : ControllerBase
 {
 
@@ -46,6 +47,9 @@ public class CustomerController : ControllerBase
 
     [HttpGet("GetCustomer/{customerId}", Name = "GetCustomer")]
     [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Customer>> GetCustomersAsync(int customerId)
     {
         var customer = await _customerService.GetCustomerAsync(customerId);
@@ -78,6 +82,9 @@ public class CustomerController : ControllerBase
         }
     }
 
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpDelete("DeleteCustomer/{customerId}")]
     public async Task<ActionResult> DeleteCustomerAsync(int customerId)
     {
@@ -96,6 +103,9 @@ public class CustomerController : ControllerBase
         }
     }
 
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPatch("Patch/Customer/{customerId}")]
     //[{ "operationType": 0, "path": "/name", "op": "replace", "value": "John" }]
     public async Task<ActionResult> UpdateCustomer(int customerId, JsonPatchDocument<CustomerDto> patchDocument)

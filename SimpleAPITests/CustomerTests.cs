@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -10,10 +11,14 @@ namespace SimpleAPITests;
 public class CustomerServiceTests
 {
     private readonly ILogger<CustomerService> _logger;
+    private readonly IMapper _mapper;
     public CustomerServiceTests()
     {
         var loggerMock = new Mock<ILogger<CustomerService>>();
         _logger = loggerMock.Object;
+
+        var mapperMock = new Mock<IMapper>();
+        _mapper = mapperMock.Object;
     }
 
     [Fact]
@@ -77,7 +82,7 @@ public class CustomerServiceTests
     {
         // Arrange
         var mockCustomerStore = new Mock<ICustomerStore>();
-        var customer = new Customer()
+        var customer = new SimpleAPI.Entities.Customer()
         {
             Id = 1,
             Name = "John",
@@ -91,7 +96,7 @@ public class CustomerServiceTests
         mockCustomerStore.Setup(x => x.GetByIdAsync(customerId)).ReturnsAsync(customer);
 
         // Act
-        await customerService.AddCustomerAsync(customer);
+        await customerService.AddCustomerAsync(_mapper.Map<Customer>(customer));
         await customerService.DeleteCustomerAsync(customerId);
 
         // Assert
@@ -126,7 +131,7 @@ public class CustomerServiceTests
         var customerId = 1;
 
         // Mock the behavior of the GetByIdAsync method to return a customer with the given id
-        mockCustomerStore.Setup(x => x.GetByIdAsync(customerId)).ReturnsAsync(new Customer()
+        mockCustomerStore.Setup(x => x.GetByIdAsync(customerId)).ReturnsAsync(new SimpleAPI.Entities.Customer()
         {
             Id = customerId
         });

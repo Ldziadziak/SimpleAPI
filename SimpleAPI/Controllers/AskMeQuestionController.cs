@@ -4,7 +4,9 @@ using SimpleAPI.Interfaces;
 namespace SimpleAPI.Controllers;
 
 [ApiController]
-[Route("api/askme")]
+[ApiVersion("1.0")]
+[ApiVersion("2.0")]
+[Route("api/v{version:apiVersion}/askme")]
 public class AskMeQuestionController : ControllerBase
 {
     private readonly ILogger<AskMeQuestionController> _logger;
@@ -18,7 +20,7 @@ public class AskMeQuestionController : ControllerBase
     }
 
     [HttpGet]
-    [Route("/question/{question}")]
+    [Route("question/{question}")]
     public async Task<ActionResult> ReciveAnswerAsync(string question)
     {
         var aiServiceName = _configuration.GetValue<string>("DefaultAIService");

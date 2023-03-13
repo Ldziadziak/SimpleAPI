@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using SimpleAPI.DbContexts;
+using SimpleAPI.Extensions;
 using SimpleAPI.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,12 +13,27 @@ builder.Services.AddControllers(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(CustomerMapper).Assembly);
 builder.Services.AddLocalServices();
 builder.Services.AddMvc().AddNewtonsoftJson(); //for JsonPatch
 builder.Services.AddControllersWithViews();
 builder.Services.AddEntityFrameworkSqlite().AddDbContext<CustomerContext>();
+builder.Services.AddApiVersioning(config =>
+ {
+     config.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(2, 0);
+     config.ReportApiVersions = true;
+ });
+
+#region swagger things
+builder.Services.AddVersionedApiExplorer(setup =>
+{
+    setup.GroupNameFormat = "'v'VVV";
+    setup.SubstituteApiVersionInUrl = true;
+});
+builder.Services.AddSwaggerGen();
+builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
+#endregion
+
 builder.Host.UseSerilog((ctx, lc) => lc.ReadFrom.Configuration(ctx.Configuration));
 
 var app = builder.Build();
@@ -30,15 +47,34 @@ using (var db = new CustomerContext())
         db.Database.EnsureCreated();
         db.Database.Migrate();
     }
-    catch { }
+    catch
+    {
+        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("DB not updated!");
+    }
 }
 #endregion
 
+#region swagger/versioning
+var apiVersionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List);
+        var versionDescriptions = apiVersionProvider.ApiVersionDescriptions
+            .OrderByDescending(desc => desc.ApiVersion)
+            .Select(description => (
+                Url: $"/swagger/{description.GroupName}/swagger.json",
+                Name: description.GroupName.ToUpperInvariant()))
+            .ToList();
+
+        versionDescriptions.ForEach(endpoint =>
+            options.SwaggerEndpoint(endpoint.Url, endpoint.Name));
+    });
 }
+#endregion
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
