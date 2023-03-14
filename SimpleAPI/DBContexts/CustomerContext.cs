@@ -6,7 +6,7 @@ namespace SimpleAPI.DbContexts;
 public class CustomerContext : DbContext
 {
     //dotnet ef migrations add InitialCreate
-    public DbSet<Customer> customer { get; set; } = null!;
+    public DbSet<Customer> Customers { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

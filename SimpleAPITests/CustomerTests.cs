@@ -25,7 +25,7 @@ public class CustomerServiceTests
     public async Task AddCustomerAsync_WhenCustomerIsValid_ReturnsIdentityResultSuccess()
     {
         // Arrange
-        var customer = new Customer
+        var customer = new CustomerModel
         {
             Id = 1,
             Name = "John",
@@ -58,11 +58,11 @@ public class CustomerServiceTests
         // Arrange
         var mockCustomerStore = new Mock<ICustomerStore>();
         var customerService = new CustomerService(mockCustomerStore.Object, _logger);
-        var customers = new List<Customer> {
-    new Customer {
+        var customers = new List<CustomerModel> {
+    new CustomerModel {
       Id = 1, Name = "John", Surname = "Doe"
     },
-    new Customer {
+    new CustomerModel {
       Id = 2, Name = "John", Surname = "Doe"
     }
   };
@@ -96,7 +96,7 @@ public class CustomerServiceTests
         mockCustomerStore.Setup(x => x.GetByIdAsync(customerId)).ReturnsAsync(customer);
 
         // Act
-        await customerService.AddCustomerAsync(_mapper.Map<Customer>(customer));
+        await customerService.AddCustomerAsync(_mapper.Map<CustomerModel>(customer));
         await customerService.DeleteCustomerAsync(customerId);
 
         // Assert

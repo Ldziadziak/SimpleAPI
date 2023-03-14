@@ -14,7 +14,7 @@ public class CustomerService : ICustomerService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<IdentityResult> AddCustomerAsync(Customer customer)
+    public async Task<IdentityResult> AddCustomerAsync(CustomerModel customer)
     {
         //use valid
         try
@@ -28,7 +28,7 @@ public class CustomerService : ICustomerService
         return IdentityResult.Success;
     }
 
-    public async Task<IEnumerable<Customer?>> GetAllCustomersAsync()
+    public async Task<IEnumerable<CustomerModel?>> GetAllCustomersAsync()
     {
         var customers = await _customerStore.GetAllAsync();
         if (customers == null)
@@ -90,6 +90,11 @@ public class CustomerService : ICustomerService
         }
 
         return customerExistAsync;
+    }
+
+    public async Task<(IEnumerable<CustomerModel>, PaginationMetadata)> GetCustomersAsync(string? name, string? searchQuery, int pageNumber, int pageSize)
+    {
+        return await _customerStore.GetAsync(name, searchQuery, pageNumber, pageSize);
     }
 
     public async Task<bool> SaveChangesAsync()

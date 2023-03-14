@@ -11,7 +11,7 @@ namespace SimpleAPI.Controllers;
 [ApiVersion("1.0")]
 [ApiVersion("2.0")]
 [Route("api/v{version:apiVersion}/customers")]
-public class CustomerController : ControllerBase
+public partial class CustomerController : ControllerBase
 {
 
     private readonly ILogger<CustomerController> _logger;
@@ -30,7 +30,7 @@ public class CustomerController : ControllerBase
     [HttpPost("AddCustomer")]
     public async Task<ActionResult> AddCustomerAsync([FromBody] CustomerDto dto)
     {
-        var customer = _mapper.Map<Customer>(dto);
+        var customer = _mapper.Map<CustomerModel>(dto);
         var response = await _customerService.AddCustomerAsync(customer);
 
         if (response.Succeeded)
@@ -50,7 +50,7 @@ public class CustomerController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Customer>> GetCustomersAsync(int customerId)
+    public async Task<ActionResult<CustomerModel>> GetCustomersAsync(int customerId)
     {
         var customer = await _customerService.GetCustomerAsync(customerId);
         if (customer == null)

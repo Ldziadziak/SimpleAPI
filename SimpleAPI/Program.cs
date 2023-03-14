@@ -18,11 +18,14 @@ builder.Services.AddLocalServices();
 builder.Services.AddMvc().AddNewtonsoftJson(); //for JsonPatch
 builder.Services.AddControllersWithViews();
 builder.Services.AddEntityFrameworkSqlite().AddDbContext<CustomerContext>();
+
+#region api default version
 builder.Services.AddApiVersioning(config =>
  {
      config.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(2, 0);
      config.ReportApiVersions = true;
  });
+#endregion
 
 #region swagger things
 builder.Services.AddVersionedApiExplorer(setup =>
@@ -41,15 +44,18 @@ var app = builder.Build();
 #region db things
 using (var db = new CustomerContext())
 {
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
     try
     {
+        //it will crash if database exists
         db.Database.EnsureDeleted();
         db.Database.EnsureCreated();
         db.Database.Migrate();
+        logger.LogInformation("DB updated!");
     }
     catch
     {
-        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+
         logger.LogInformation("DB not updated!");
     }
 }
