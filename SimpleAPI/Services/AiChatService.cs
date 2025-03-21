@@ -3,13 +3,10 @@ using System.Reflection;
 
 namespace SimpleAPI.Services;
 
-public class AiChatService : IAiChatService
+public class AiChatService(IConfiguration configuration) : IAiChatService
 {
-  private readonly IConfiguration _configuration;
-  public AiChatService(IConfiguration configuration)
-  {
-    _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-  }
+  private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+
   public async Task<string> RunAiChatDll(string service, object[] parameters)
   {
     var libraryFullName = _configuration.GetValue<string>($"ChatAILibraries:{service}:LibraryFullName");

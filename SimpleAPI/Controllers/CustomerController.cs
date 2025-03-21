@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SimpleAPI.DTO;
 using SimpleAPI.Interfaces;
 using SimpleAPI.Models;
+using Asp.Versioning;
 
 namespace SimpleAPI.Controllers;
 
@@ -11,33 +12,25 @@ namespace SimpleAPI.Controllers;
 [ApiVersion("1.0")]
 [ApiVersion("2.0")]
 [Route("api/v{version:apiVersion}/customers")]
-public partial class CustomerController : ControllerBase
+public partial class CustomerController(ILogger<CustomerController> logger, ICustomerService customer, IMapper mapper, IMailService mailService) : ControllerBase
 {
 
-  private readonly ILogger<CustomerController> _logger;
-  private readonly ICustomerService _customerService;
-  private readonly IMapper _mapper;
-  private readonly IMailService _mailService;
-
-  public CustomerController(ILogger<CustomerController> logger, ICustomerService customer, IMapper mapper, IMailService mailService)
-  {
-    _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    _customerService = customer ?? throw new ArgumentNullException(nameof(customer));
-    _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-    _mailService = mailService ?? throw new ArgumentNullException(nameof(mailService));
-  }
+  private readonly ILogger<CustomerController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+  private readonly ICustomerService _customerService = customer ?? throw new ArgumentNullException(nameof(customer));
+  private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+  private readonly IMailService _mailService = mailService ?? throw new ArgumentNullException(nameof(mailService));
 
   [HttpPost("AddCustomer")]
   public async Task<ActionResult> AddCustomerAsync([FromBody] CustomerDto dto)
   {
-    var customer = _mapper.Map<CustomerModel>(dto);
-    var response = await _customerService.AddCustomerAsync(customer);
+    var mappedCustomer = _mapper.Map<CustomerModel>(dto);
+    var response = await _customerService.AddCustomerAsync(mappedCustomer);
 
     if (response.Succeeded)
     {
-      _logger.LogInformation($"Added customer with ID {customer.Id}");
-      _mailService.Send("Added customer", $"Added customer with ID {customer.Id}");
-      return CreatedAtRoute("GetCustomer", new { customerId = customer.Id }, dto);
+      _logger.LogInformation("Added customer with ID {CustomerId}", mappedCustomer.Id);
+      _mailService.Send("Added customer", $"Added customer with ID {mappedCustomer.Id}");
+      return CreatedAtRoute("GetCustomer", new { customerId = mappedCustomer.Id }, dto);
     }
     else
     {
@@ -52,15 +45,15 @@ public partial class CustomerController : ControllerBase
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   public async Task<ActionResult<CustomerModel>> GetCustomersAsync(int customerId)
   {
-    var customer = await _customerService.GetCustomerAsync(customerId);
-    if (customer == null)
+    var customerData = await _customerService.GetCustomerAsync(customerId);
+    if (customerData == null)
     {
       return NotFound($"Customer not found");
     }
     else
     {
       _logger.LogInformation("Retrieving customer");
-      return Ok(customer);
+      return Ok(customerData);
     }
   }
 
@@ -92,7 +85,7 @@ public partial class CustomerController : ControllerBase
 
     if (response.Succeeded)
     {
-      _logger.LogInformation($"Deleted customer with ID {customerId}");
+      _logger.LogInformation("Deleted customer with ID {CustomerId}", customerId);
       _mailService.Send("Deleted customer", $"Deleted customer with ID {customerId}");
       return Ok();
     }
@@ -152,5 +145,4 @@ public partial class CustomerController : ControllerBase
       return BadRequest(serviceResponse.Errors);
     }
   }
-
 }

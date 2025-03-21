@@ -3,6 +3,7 @@ using SimpleAPI.Models;
 using SimpleAPI.Services;
 
 namespace SimpleAPI.Interfaces;
+
 public interface ICustomerService
 {
   const string DuplicateErrorCode = "Duplicate";

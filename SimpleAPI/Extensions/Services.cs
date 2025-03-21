@@ -1,8 +1,8 @@
-﻿namespace Microsoft.Extensions.DependencyInjection;
-
-using SimpleAPI.Data;
+﻿using SimpleAPI.Data;
 using SimpleAPI.Interfaces;
 using SimpleAPI.Services;
+
+namespace SimpleAPI.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -14,7 +14,7 @@ public static class ServiceCollectionExtensions
 #if DEBUG
     services.AddTransient<IMailService, LocalMailService>();
 #else
-        services.AddTransient<IMailService, CloudMailService>();
+    services.AddTransient<IMailService, CloudMailService>();
 #endif
 
     return services;

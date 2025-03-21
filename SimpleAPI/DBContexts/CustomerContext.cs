@@ -38,6 +38,4 @@ public class CustomerContext : DbContext
 
     base.OnModelCreating(modelBuilder);
   }
-
-
 }

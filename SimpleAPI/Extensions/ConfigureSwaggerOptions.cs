@@ -1,20 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc.ApiExplorer;
+﻿using Asp.Versioning.ApiExplorer;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace SimpleAPI.Extensions
 {
-  public class ConfigureSwaggerOptions
-         : IConfigureNamedOptions<SwaggerGenOptions>
+  public class ConfigureSwaggerOptions(
+      IApiVersionDescriptionProvider provider)
+                  : IConfigureNamedOptions<SwaggerGenOptions>
   {
-    private readonly IApiVersionDescriptionProvider provider;
-
-    public ConfigureSwaggerOptions(
-        IApiVersionDescriptionProvider provider)
-    {
-      this.provider = provider;
-    }
+    private readonly IApiVersionDescriptionProvider provider = provider;
 
     public void Configure(SwaggerGenOptions options)
     {
@@ -32,7 +27,7 @@ namespace SimpleAPI.Extensions
       Configure(options);
     }
 
-    private OpenApiInfo CreateVersionInfo(
+    private static OpenApiInfo CreateVersionInfo(
             ApiVersionDescription description)
     {
       var info = new OpenApiInfo()

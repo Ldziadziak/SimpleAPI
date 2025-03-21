@@ -1,4 +1,5 @@
 ﻿namespace SimpleAPI.Models;
+
 public class CustomerModel
 {
   public int Id { get; set; }

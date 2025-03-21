@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+
 namespace SimpleAPI.DTO;
 
 public class CustomerDto

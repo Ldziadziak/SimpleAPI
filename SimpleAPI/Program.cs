@@ -1,9 +1,10 @@
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
+﻿using Serilog;
 using SimpleAPI.DbContexts;
 using SimpleAPI.Extensions;
+using SimpleAPI.Infrastructure;
 using SimpleAPI.Utils;
+using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,25 +16,38 @@ builder.Services.AddControllers(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAutoMapper(typeof(CustomerMapper).Assembly);
 builder.Services.AddLocalServices();
-builder.Services.AddMvc().AddNewtonsoftJson(); //for JsonPatch
+
+builder.Services.AddMvc().AddNewtonsoftJson();
+
 builder.Services.AddControllersWithViews();
+
 builder.Services.AddEntityFrameworkSqlite().AddDbContext<CustomerContext>();
 
-#region api default version
+#region Konfiguracja wersjonowania API
 builder.Services.AddApiVersioning(config =>
- {
-   config.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(2, 0);
-   config.ReportApiVersions = true;
- });
+{
+  config.DefaultApiVersion = new ApiVersion(2, 0);
+  config.ReportApiVersions = true;
+});
 #endregion
 
-#region swagger things
-builder.Services.AddVersionedApiExplorer(setup =>
+#region Konfiguracja Swaggera
+builder.Services.AddSwaggerGen(options =>
 {
-  setup.GroupNameFormat = "'v'VVV";
-  setup.SubstituteApiVersionInUrl = true;
+  options.DocInclusionPredicate((version, apiDescription) =>
+  {
+    var versions = apiDescription.ActionDescriptor
+        .EndpointMetadata
+        .OfType<ApiVersionAttribute>()
+        .SelectMany(attr => attr.Versions);
+
+    return versions.Any(v => $"v{v.ToString()}" == version);
+  });
+
+  options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "API v1", Version = "v1" });
+  options.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "API v2", Version = "v2" });
 });
-builder.Services.AddSwaggerGen();
+
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 #endregion
 
@@ -41,28 +55,14 @@ builder.Host.UseSerilog((ctx, lc) => lc.ReadFrom.Configuration(ctx.Configuration
 
 var app = builder.Build();
 
-#region db things
-using (var db = new CustomerContext())
-{
-  var logger = app.Services.GetRequiredService<ILogger<Program>>();
-  try
-  {
-    //it will crash if database exists
-    db.Database.EnsureDeleted();
-    db.Database.EnsureCreated();
-    db.Database.Migrate();
-    logger.LogInformation("DB updated!");
-  }
-  catch
-  {
-
-    logger.LogInformation("DB not updated!");
-  }
-}
+#region Migracja bazy danych
+var services = app.Services;
+await DatabaseInitializer.MigrateDatabaseAsync(services);
 #endregion
 
-#region swagger/versioning
+#region Konfiguracja Swaggera i wersji API w środowisku deweloperskim
 var apiVersionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+
 if (app.Environment.IsDevelopment())
 {
   app.UseSwagger();
@@ -85,6 +85,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthorization();
+
 app.MapControllers();
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Home}/{id?}");
-app.Run();
+
+await app.RunAsync();

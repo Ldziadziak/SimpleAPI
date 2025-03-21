@@ -1,25 +1,33 @@
 ﻿using System.Runtime.Serialization;
 
-namespace SimpleAPI.Interfaces;
-
-[Serializable]
-public class EntityNotFoundException : Exception, ISerializable
+namespace SimpleAPI.Interfaces
 {
-  public EntityNotFoundException(int id, string message) : base(message)
+  [Serializable]
+  public class EntityNotFoundException : Exception, ISerializable
   {
-    Id = id;
-  }
+    public EntityNotFoundException(int id, string message)
+        : base(message)
+    {
+      Id = id;
+    }
 
-  public int Id { get; private set; }
+    public EntityNotFoundException() { }
 
-  protected EntityNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context)
-  {
-    Id = info.GetInt32(nameof(Id));
-  }
+    public int Id { get; private set; }
 
-  public override void GetObjectData(SerializationInfo info, StreamingContext context)
-  {
-    base.GetObjectData(info, context);
-    info.AddValue(nameof(Id), Id);
+    protected EntityNotFoundException(SerializationInfo info, StreamingContext context)
+#pragma warning disable SYSLIB0051
+        : base(info, context)
+#pragma warning restore SYSLIB0051
+    {
+      Id = info.GetInt32(nameof(Id));
+    }
+#pragma warning disable CS0672, SYSLIB0051
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      base.GetObjectData(info, context);
+      info.AddValue(nameof(Id), Id);
+    }
+#pragma warning restore CS0672, SYSLIB0051
   }
 }

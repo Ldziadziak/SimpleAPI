@@ -8,18 +8,11 @@ using SimpleAPI.Services;
 
 namespace SimpleAPI.Data;
 
-public class DbCustomerStore : ICustomerStore
+public class DbCustomerStore(ILogger<CustomerController> logger, CustomerContext context, IMapper mapper) : ICustomerStore
 {
-  private readonly ILogger<CustomerController> _logger;
-  private readonly CustomerContext _context;
-  private readonly IMapper _mapper;
-
-  public DbCustomerStore(ILogger<CustomerController> logger, CustomerContext context, IMapper mapper)
-  {
-    _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    _context = context ?? throw new ArgumentNullException(nameof(context));
-    _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-  }
+  private readonly ILogger<CustomerController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+  private readonly CustomerContext _context = context ?? throw new ArgumentNullException(nameof(context));
+  private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
   public async Task<CustomerModel> AddCustomerAsync(CustomerModel customer)
   {
@@ -34,11 +27,12 @@ public class DbCustomerStore : ICustomerStore
 
   public async Task<Entities.Customer> GetByIdAsync(int customerId)
   {
-    var customer = await Task.FromResult(_context.Customers.FirstOrDefault(c => c.Id == customerId)!);
-    if (customer == null)
+    var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Id == customerId);
+
+    if (customer is null)
     {
-      _logger.LogWarning($"Failed to get customer with id {customerId}");
-      throw new EntityNotFoundException(customerId, $"Failed to get customer {customerId} from db");
+      _logger.LogWarning("Failed to get customer with ID {CustomerId}", customerId);
+      throw new EntityNotFoundException(customerId, $"Failed to get customer {customerId} from DB");
     }
 
     return customer;
@@ -58,7 +52,7 @@ public class DbCustomerStore : ICustomerStore
     if (!string.IsNullOrWhiteSpace(name))
     {
       name = name.Trim();
-      collection.Where(c => c.Name.StartsWith(name));
+      _ = collection.Where(c => c.Name.StartsWith(name));
     }
 
     if (!string.IsNullOrWhiteSpace(searchQuery))
@@ -83,11 +77,20 @@ public class DbCustomerStore : ICustomerStore
 
   public async Task DeleteAsync(int customerId)
   {
-    var customer = _context.Customers.FirstOrDefault(c => c.Id == customerId);
-    _context.Customers.Remove(customer!);
+    var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Id == customerId);
 
-    await Task.CompletedTask;
+    if (customer is null)
+    {
+      _logger.LogWarning("Attempted to delete a non-existent customer with ID {CustomerId}", customerId);
+      throw new EntityNotFoundException(customerId, $"Customer with ID {customerId} not found.");
+    }
+
+    _context.Customers.Remove(customer);
+    await _context.SaveChangesAsync();
+
+    _logger.LogInformation("Deleted customer with ID {CustomerId}", customerId);
   }
+
   public async Task<int> SaveChangesAsync()
   {
     return await _context.SaveChangesAsync();

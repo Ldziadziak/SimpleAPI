@@ -1,16 +1,11 @@
 ﻿using SimpleAPI.Interfaces;
+
 namespace SimpleAPI.Services;
 
-public class LocalMailService : IMailService
+public class LocalMailService(IConfiguration configuration) : IMailService
 {
-  private readonly string _mailTo;
-  private readonly string _mailFrom;
-
-  public LocalMailService(IConfiguration configuration)
-  {
-    _mailTo = configuration["mailSettings:mailToAddress"]!;
-    _mailFrom = configuration["mailSettings:mailFromAddress"]!;
-  }
+  private readonly string _mailTo = configuration["mailSettings:mailToAddress"]!;
+  private readonly string _mailFrom = configuration["mailSettings:mailFromAddress"]!;
 
   public void Send(string subject, string message)
   {

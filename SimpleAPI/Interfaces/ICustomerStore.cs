@@ -2,7 +2,6 @@
 using SimpleAPI.Services;
 
 namespace SimpleAPI.Interfaces;
-
 public interface ICustomerStore
 {
   Task<CustomerModel> AddCustomerAsync(CustomerModel customer);

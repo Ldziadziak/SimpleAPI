@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 namespace SimpleAPI.Models;
-
 public class HomeViewModel
 {
   [Required]
