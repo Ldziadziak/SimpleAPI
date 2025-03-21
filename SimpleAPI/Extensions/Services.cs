@@ -6,17 +6,17 @@ using SimpleAPI.Services;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddLocalServices(this IServiceCollection services)
-    {
-        services.AddScoped<ICustomerService, CustomerService>();
-        services.AddScoped<ICustomerStore, DbCustomerStore>();
-        services.AddTransient<IAiChatService, AiChatService>();
+  public static IServiceCollection AddLocalServices(this IServiceCollection services)
+  {
+    services.AddScoped<ICustomerService, CustomerService>();
+    services.AddScoped<ICustomerStore, DbCustomerStore>();
+    services.AddTransient<IAiChatService, AiChatService>();
 #if DEBUG
-        services.AddTransient<IMailService, LocalMailService>();
-#else 
+    services.AddTransient<IMailService, LocalMailService>();
+#else
         services.AddTransient<IMailService, CloudMailService>();
 #endif
 
-        return services;
-    }
+    return services;
+  }
 }

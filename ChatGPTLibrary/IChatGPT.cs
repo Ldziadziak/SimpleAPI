@@ -4,5 +4,5 @@
 public interface IChatGPT
 #pragma warning restore S101 // Types should be named in PascalCase
 {
-    Task<string> AskMeQuestionAsync(string question);
+  Task<string> AskMeQuestionAsync(string question);
 }

@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers(options =>
 {
-    options.ReturnHttpNotAcceptable = true;
+  options.ReturnHttpNotAcceptable = true;
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -22,16 +22,16 @@ builder.Services.AddEntityFrameworkSqlite().AddDbContext<CustomerContext>();
 #region api default version
 builder.Services.AddApiVersioning(config =>
  {
-     config.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(2, 0);
-     config.ReportApiVersions = true;
+   config.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(2, 0);
+   config.ReportApiVersions = true;
  });
 #endregion
 
 #region swagger things
 builder.Services.AddVersionedApiExplorer(setup =>
 {
-    setup.GroupNameFormat = "'v'VVV";
-    setup.SubstituteApiVersionInUrl = true;
+  setup.GroupNameFormat = "'v'VVV";
+  setup.SubstituteApiVersionInUrl = true;
 });
 builder.Services.AddSwaggerGen();
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
@@ -44,20 +44,20 @@ var app = builder.Build();
 #region db things
 using (var db = new CustomerContext())
 {
-    var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    try
-    {
-        //it will crash if database exists
-        db.Database.EnsureDeleted();
-        db.Database.EnsureCreated();
-        db.Database.Migrate();
-        logger.LogInformation("DB updated!");
-    }
-    catch
-    {
+  var logger = app.Services.GetRequiredService<ILogger<Program>>();
+  try
+  {
+    //it will crash if database exists
+    db.Database.EnsureDeleted();
+    db.Database.EnsureCreated();
+    db.Database.Migrate();
+    logger.LogInformation("DB updated!");
+  }
+  catch
+  {
 
-        logger.LogInformation("DB not updated!");
-    }
+    logger.LogInformation("DB not updated!");
+  }
 }
 #endregion
 
@@ -65,20 +65,20 @@ using (var db = new CustomerContext())
 var apiVersionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List);
-        var versionDescriptions = apiVersionProvider.ApiVersionDescriptions
-            .OrderByDescending(desc => desc.ApiVersion)
-            .Select(description => (
-                Url: $"/swagger/{description.GroupName}/swagger.json",
-                Name: description.GroupName.ToUpperInvariant()))
-            .ToList();
+  app.UseSwagger();
+  app.UseSwaggerUI(options =>
+  {
+    options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List);
+    var versionDescriptions = apiVersionProvider.ApiVersionDescriptions
+          .OrderByDescending(desc => desc.ApiVersion)
+          .Select(description => (
+              Url: $"/swagger/{description.GroupName}/swagger.json",
+              Name: description.GroupName.ToUpperInvariant()))
+          .ToList();
 
-        versionDescriptions.ForEach(endpoint =>
-            options.SwaggerEndpoint(endpoint.Url, endpoint.Name));
-    });
+    versionDescriptions.ForEach(endpoint =>
+          options.SwaggerEndpoint(endpoint.Url, endpoint.Name));
+  });
 }
 #endregion
 
